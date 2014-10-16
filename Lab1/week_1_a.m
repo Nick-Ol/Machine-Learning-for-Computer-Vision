@@ -61,7 +61,7 @@ print('-depsc','decision_boundary_linear');
 %% Second part -  logistic regression (your turn)
 %%---------------------------------------------------------------
 
-w = [0;0;0]; %% initialize w randomly
+w = [1;0;1]; %% initialize w randomly
 k = 0;
 while 1 %% continue until convergence criterion is met 
     k = k +1;
@@ -71,15 +71,11 @@ while 1 %% continue until convergence criterion is met
     J = gradient(w_prev, Y, X);
     H = hessian(w_prev, Y, X);
     
-    w        = w_prev - inv(H)*J';
-    w        = w / sqrt(sum(w.^2));
-    score(k) = 0;
-    A = w'*X';
-    for i =1:length(A),
-    score(k) = score(k) + Y(i)*log(sigmoid(A(i))) + (1-Y(i))*log(1-sigmoid(A(i)));
-    end    
+    w        = w_prev - pinv(H)*J';
+
+    score(k) = sum(Y .* log(sigmoid(X*w)) + (1-Y) .* log(1-sigmoid(X*w)));   
     %% convergence criterion
-    if sqrt(sum((w-w_prev).^2))/sqrt(sum(w.^2))<.001
+    if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.001
         break
     end
 end
