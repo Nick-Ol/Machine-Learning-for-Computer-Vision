@@ -72,9 +72,25 @@ for i=1:Nlambdas
         
         w = zeros(ndimensions,1); %% initialize w
         
-        w = your_code_goes_here;
+        while 1 %% continue until convergence criterion is met 
+            k = k +1;
+            w_prev = w;
+    
+            %% update w (Newton-Raphson)
+            J = gradient(w_prev, Y, X, lambda);
+            H = hessian(w_prev, Y, X, lambda);
+    
+            w        = w_prev - pinv(H)*J';
+    
+            %% convergence criterion
+               if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.1
+                  break
+               end
+        end
         
-        nerrors(1,validation_run) = your_code_goes_here;
+        predicted_label_test    = (1./(1+exp(-w'*vlset_features)) >.5);
+        nerrors(1,validation_run) = length(find(predicted_label_test~=vlset_labels));
+   
     end
     fprintf(' \n');
     %The crorss-validation error is the mean of the error
@@ -86,13 +102,30 @@ print('-depsc','cv_error');
 
 %Pick the lambda that minimizes the cross-validation error
 
-lambda = your_code_goes_here;
+%index of the minimum of cv_error:
+index = find(cv_error == min(cv_error(:)));
+lambda = lamda_range(index);
 
 
 %% Retrain using full training set
 
-w = your_code_goes_here;
-
+w = zeros(ndimensions,1); %% initialize w
+        
+while 1 %% continue until convergence criterion is met 
+    k = k +1;
+	w_prev = w;
+    
+	%% update w (Newton-Raphson)
+	J = gradient(w_prev, Y, X, lambda);
+	H = hessian(w_prev, Y, X, lambda);
+    
+	w        = w_prev - pinv(H)*J';
+    
+	%% convergence criterion
+	if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<2
+        break
+	end
+end
 
 
 %% visualize the resulting classifier

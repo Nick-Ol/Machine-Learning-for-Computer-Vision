@@ -61,17 +61,18 @@ print('-depsc','decision_boundary_linear');
 %% Second part -  logistic regression (your turn)
 %%---------------------------------------------------------------
 
-w = [1;0;1]; %% initialize w randomly
+w = [0;0;0]; %% initialize w randomly
 k = 0;
 while 1 %% continue until convergence criterion is met 
     k = k +1;
     w_prev = w;
     
     %% update w (Newton-Raphson)
-    J = gradient(w_prev, Y, X);
-    H = hessian(w_prev, Y, X);
+    J = gradient(w_prev, Y, X, 0);
+    H = hessian(w_prev, Y, X, 0);
     
     w        = w_prev - pinv(H)*J';
+    
 
     score(k) = sum(Y .* log(sigmoid(X*w)) + (1-Y) .* log(1-sigmoid(X*w)));   
     %% convergence criterion
