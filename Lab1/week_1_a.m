@@ -90,7 +90,7 @@ sigmoidal_values = 1./(1+exp(-function_values));
 
 %% estimate number of misclassified test points
 predicted_label_test    = (1./(1+exp(-w'*test_features)) >.5);
-nerrors                 = length(find(predicted_label_test~=test_labels))
+nerrors                 = length(find(predicted_label_test~=test_labels));
 
 %% step 2: plot the set of positions where its value equals .5 
 hf = figure;

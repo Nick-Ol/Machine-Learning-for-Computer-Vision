@@ -83,7 +83,7 @@ for i=1:Nlambdas
             w        = w_prev - pinv(H)*J';
     
             %% convergence criterion
-               if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.1
+               if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.001
                   break
                end
         end
@@ -104,10 +104,12 @@ print('-depsc','cv_error');
 
 %index of the minimum of cv_error:
 index = find(cv_error == min(cv_error(:)));
-lambda = lamda_range(index);
+lambda = lambda_range(index);
 
 
 %% Retrain using full training set
+X = train_features';
+Y = train_labels';
 
 w = zeros(ndimensions,1); %% initialize w
         
@@ -145,4 +147,5 @@ print('-depsc','contours');
 [test_features_2D, test_labels ] = construct_data(nsamples,'test', problem);
 test_features        = embedding(test_features_2D);
 
-nerrors_test = your_code_goes_here;
+predicted_label_test    = (1./(1+exp(-w'*test_features)) >.5);
+nerrors_test = length(find(predicted_label_test~=test_labels));
