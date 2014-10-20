@@ -46,7 +46,7 @@ title('\Phi_{121}(x_1,x_2)'); xlabel('x_1'); ylabel('x_2');
 %% generate candidate regularization coefficients, lambda:
 %% geometric progression from 0.0001 to 100, in 20 steps
 Nlambdas                = 20;
-lambda_range            = logsample(0.0001, 100,Nlambdas);
+lambda_range            = logsample(0.0001, 50, Nlambdas);
 
 %% for each of those lambdas
 for i=1:Nlambdas
@@ -71,29 +71,32 @@ for i=1:Nlambdas
         Y = trset_labels';
         
         w = zeros(ndimensions,1); %% initialize w
-        
+        k = 0;
         while 1 %% continue until convergence criterion is met 
             k = k +1;
             w_prev = w;
     
             %% update w (Newton-Raphson)
             J = gradient(w_prev, Y, X, lambda);
-            H = hessian(w_prev, Y, X, lambda);
-    
-            w        = w_prev - pinv(H)*J';
-    
+            H = hessian(w_prev, X, lambda);
+
+            w        = w_prev - pinv(H)*J';            
+            w = w/ sqrt(sum(w.^2));
+             
+            clearvars J H
             %% convergence criterion
                if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.001
                   break
                end
-        end
+        end        
         
         predicted_label_test    = (1./(1+exp(-w'*vlset_features)) >.5);
         nerrors(1,validation_run) = length(find(predicted_label_test~=vlset_labels));
    
+        clearvars w w_prev
     end
     fprintf(' \n');
-    %The crorss-validation error is the mean of the error
+    %The cross-validation error is the mean of the error
     cv_error(i)=mean(nerrors,2);
 end
 
@@ -103,28 +106,27 @@ print('-depsc','cv_error');
 %Pick the lambda that minimizes the cross-validation error
 
 %index of the minimum of cv_error:
-index = find(cv_error == min(cv_error(:)));
+index = min(find(cv_error == min(cv_error(:))));
 lambda = lambda_range(index);
-
 
 %% Retrain using full training set
 X = train_features';
 Y = train_labels';
 
 w = zeros(ndimensions,1); %% initialize w
-        
+k=0;        
 while 1 %% continue until convergence criterion is met 
     k = k +1;
 	w_prev = w;
     
 	%% update w (Newton-Raphson)
 	J = gradient(w_prev, Y, X, lambda);
-	H = hessian(w_prev, Y, X, lambda);
+	H = hessian(w_prev, X, lambda);
     
 	w        = w_prev - pinv(H)*J';
     
 	%% convergence criterion
-	if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<2
+	if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.001
         break
 	end
 end
@@ -148,4 +150,4 @@ print('-depsc','contours');
 test_features        = embedding(test_features_2D);
 
 predicted_label_test    = (1./(1+exp(-w'*test_features)) >.5);
-nerrors_test = length(find(predicted_label_test~=test_labels));
+nerrors_test = length(find(predicted_label_test~=test_labels))

@@ -69,10 +69,9 @@ while 1 %% continue until convergence criterion is met
     
     %% update w (Newton-Raphson)
     J = gradient(w_prev, Y, X, 0);
-    H = hessian(w_prev, Y, X, 0);
+    H = hessian(w_prev, X, 0);
     
     w        = w_prev - pinv(H)*J';
-    
 
     score(k) = sum(Y .* log(sigmoid(X*w)) + (1-Y) .* log(1-sigmoid(X*w)));   
     %% convergence criterion
@@ -90,7 +89,7 @@ sigmoidal_values = 1./(1+exp(-function_values));
 
 %% estimate number of misclassified test points
 predicted_label_test    = (1./(1+exp(-w'*test_features)) >.5);
-nerrors                 = length(find(predicted_label_test~=test_labels));
+nerrors                 = length(find(predicted_label_test~=test_labels))
 
 %% step 2: plot the set of positions where its value equals .5 
 hf = figure;
