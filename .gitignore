@@ -1,4 +1,6 @@
-# Windows default autosave extension
-*.asv
-# EPS files
+*.pdf
+*.synctex.gz
+*.log
+*.aux
 *.eps
+*.asv

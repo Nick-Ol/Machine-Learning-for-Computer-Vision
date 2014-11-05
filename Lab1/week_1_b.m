@@ -77,13 +77,15 @@ for i=1:Nlambdas
             w_prev = w;
     
             %% update w (Newton-Raphson)
+            %same method as for week_1_a, but here we have a lambda
+            %parameter
             J = gradient(w_prev, Y, X, lambda);
             H = hessian(w_prev, X, lambda);
 
             w        = w_prev - pinv(H)*J';            
             w = w/ sqrt(sum(w.^2));
+            %i am obliger to normalize w, or it does not converge
              
-            clearvars J H
             %% convergence criterion
                if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.001
                   break
@@ -100,13 +102,14 @@ for i=1:Nlambdas
     cv_error(i)=mean(nerrors,2);
 end
 
-figure,plot(cv_error);  
+figure,plot(cv_error);
 print('-depsc','cv_error');
 
 %Pick the lambda that minimizes the cross-validation error
 
 %index of the minimum of cv_error:
 index = min(find(cv_error == min(cv_error(:))));
+%the best lambda is the one which give the less errors in average :
 lambda = lambda_range(index);
 
 %% Retrain using full training set
@@ -120,6 +123,7 @@ while 1 %% continue until convergence criterion is met
 	w_prev = w;
     
 	%% update w (Newton-Raphson)
+    %we train a new w on the whole train set with the appropriate lambda
 	J = gradient(w_prev, Y, X, lambda);
 	H = hessian(w_prev, X, lambda);
     
