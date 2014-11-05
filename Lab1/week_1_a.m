@@ -68,19 +68,18 @@ while 1 %% continue until convergence criterion is met
     w_prev = w;
     
     %% update w (Newton-Raphson)
-    J = gradient(w_prev, Y, X, 0); %gradient computation for w_prev
-    H = hessian(w_prev, X, 0); %hessian computation for w_prev
+    J = gradient(w_prev, Y, X, 0);
+    H = hessian(w_prev, X, 0);
     
-    w        = w_prev - pinv(H)*J'; %Newton's formula
+    w        = w_prev - pinv(H)*J';
 
-    score(k) = sum(Y .* log(sigmoid(X*w)) + (1-Y) .* log(1-sigmoid(X*w))); %given in pdf
-    
+    score(k) = sum(Y .* log(sigmoid(X*w)) + (1-Y) .* log(1-sigmoid(X*w)));   
     %% convergence criterion
     if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.001
         break
     end
 end
-figure,plot(score,'linewidth',2) %the score is negative, and it should go increasing
+figure,plot(score,'linewidth',2)
 print('-depsc','score');
 
 
