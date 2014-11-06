@@ -32,6 +32,7 @@ Distribution_on_indexes = ones(1,npoints)/npoints;
 Rounds_boosting = 400;
 f = zeros(Rounds_boosting,npoints);
 f_on_grid = 0;
+alpha = zeros(1,Rounds_boosting);
 
 for it = 1:Rounds_boosting,
     
@@ -44,12 +45,16 @@ for it = 1:Rounds_boosting,
     %% estimate alpha
     %%--------------------------------------------------------
     
-    
+    alpha(it) = 0.5*log((1-err_wl)/err_wl);    
     
     %%--------------------------------------------------------
     %% update  distribution on inputs 
     %%--------------------------------------------------------
     
+    Z = sum(Distribution_on_indexes.*exp(-alpha(it)*labels.*decision_stump(polarity_wl, theta_wl, features(coordinate_wl,:))));
+    Distribution_on_indexes = Distribution_on_indexes.*...
+        exp(-alpha(it)*labels.*decision_stump(polarity_wl, theta_wl, features(coordinate_wl,:)))...
+        /Z;
     
     %%--------------------------------------------------------
     %% compute loss of adaboost at current round
