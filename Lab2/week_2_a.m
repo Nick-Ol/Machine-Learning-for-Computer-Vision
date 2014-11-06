@@ -65,9 +65,11 @@ print('-dpng','cv_error');
 
 [minValue, minIndx] = min(cv_error(:));
 %cost on columns :
-cost_best = ceil(minIndx/size(cv_error,1));
+cost_best_index = ceil(minIndx/size(cv_error,1));
+cost_best = cost_range(cost_best_index);
 %gamma on rows :
-gamma_best = mod(minIndx,size(cv_error,1));
+gamma_best_index = mod(minIndx,size(cv_error,1));
+gamma_best = gamma_range(gamma_best_index);
 
 parameter_string_best = sprintf('-s 0 -g %.5f -c %.5f',gamma_best,cost_best');
 model = svmtrain_libsvm(labels', ...
