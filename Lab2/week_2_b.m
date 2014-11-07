@@ -33,6 +33,8 @@ Rounds_boosting = 400;
 f = zeros(Rounds_boosting,npoints);
 f_on_grid = 0;
 alpha = zeros(1,Rounds_boosting);
+err = zeros(1, Rounds_boosting);
+nb_err = zeros(1, Rounds_boosting);
 
 for it = 1:Rounds_boosting,
     
@@ -60,7 +62,9 @@ for it = 1:Rounds_boosting,
     %% compute loss of adaboost at current round
     %%--------------------------------------------------------
     
-    
+    f(it,:) = alpha(it)*decision_stump(polarity_wl, theta_wl, features(coordinate_wl,:));
+    err(it) = sum(exp(-labels.*sum(f,1)));
+    nb_err(it) = sum(labels~=sign(sum(f,1)));
     
     %% leave as is - it will produce the classifier images for you
     [weak_learner_on_grid] = evaluate_stump_on_grid([0:.02:1],[0:.02:1],coordinate_wl,polarity_wl,theta_wl);
@@ -81,7 +85,10 @@ for it = 1:Rounds_boosting,
 end
 
 figure,
-plot(err)
+plot(err), hold on,
+plot(nb_err)
+xlabel('Iterations' )
+legend('Exponential loss', 'Number of errors')
 print('-depsc','loss_adaboost')
 
 figure
