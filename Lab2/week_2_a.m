@@ -98,8 +98,6 @@ axis equal
 
 print('-depsc','values_svm');
 
-
-
 % Performance on test set
 [test_features,test_labels] = construct_data(nsamples,'test',problem,'plusminus');
 [predict_label, accuracy, dec_values]   = svmpredict_libsvm(test_labels', test_features', model);

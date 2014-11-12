@@ -36,6 +36,10 @@ alpha = zeros(1,Rounds_boosting);
 err = zeros(1, Rounds_boosting);
 nb_err = zeros(1, Rounds_boosting);
 
+%test set :
+[test_features,test_labels] = construct_data(nsamples,'test',problem,'plusminus');
+f_test = zeros(Rounds_boosting,npoints);
+
 for it = 1:Rounds_boosting,
     
     %%--------------------------------------------------------
@@ -65,6 +69,9 @@ for it = 1:Rounds_boosting,
     f(it,:) = alpha(it)*decision_stump(polarity_wl, theta_wl, features(coordinate_wl,:));
     err(it) = sum(exp(-labels.*sum(f,1)));
     nb_err(it) = sum(labels~=sign(sum(f,1)));
+    
+    %Value on test set :
+    f_test(it,:) = alpha(it)*decision_stump(polarity_wl, theta_wl, test_features(coordinate_wl,:));
     
     %% leave as is - it will produce the classifier images for you
     [weak_learner_on_grid] = evaluate_stump_on_grid([0:.02:1],[0:.02:1],coordinate_wl,polarity_wl,theta_wl);
@@ -109,3 +116,6 @@ imshow(f_100,[-1,1]); title('strong learner - round 100')
 subplot(1,4,4);
 imshow(f_on_grid,[-1,1]); title('strong learner - round 400')
 print('-depsc','per_round')
+
+% Performance on test set
+nerrors_adaboost = sum(test_labels~=sign(sum(f_test,1)))
