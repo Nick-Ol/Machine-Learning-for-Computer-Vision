@@ -2,3 +2,10 @@
 *.asv
 # EPS files
 *.eps
+*.aux
+
+*.log
+
+*.gz
+
+*.pdf
