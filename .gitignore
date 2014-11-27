@@ -2,10 +2,12 @@
 *.asv
 # EPS files
 *.eps
+
+#LaTeX auxiliary files
 *.aux
-
 *.log
-
 *.gz
-
 *.pdf
+
+#Data for deliverable
+Deliverable/data/*
