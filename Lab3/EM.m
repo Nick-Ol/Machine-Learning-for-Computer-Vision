@@ -1,4 +1,4 @@
-function [ mu, sigma, clusters ] = EM( features, init_means, k )
+function [ mu, sigma, clusters, p ] = EM( features, init_means, k )
 
 [dim, n] = size(features);
 mu = cell(1, k);
@@ -31,7 +31,7 @@ while abs(LogLikeNew - LogLikeOld) > 0.1 && iterations < 500
     
     % M step
     for i = 1:k
-        in_cluster_i = find(clusters==i);
+        in_cluster_i = find(clusters==i); % TODO this is computed in the next loop
         %new means
         mu{i} = mean(features(:, in_cluster_i), 2);
         %new covariances
@@ -43,8 +43,7 @@ while abs(LogLikeNew - LogLikeOld) > 0.1 && iterations < 500
          in_cluster_i = find(clusters==i);
          LogLikeNew = LogLikeNew + sum(p(i) * mvnpdf(features(:, in_cluster_i)', mu{i}', sigma{i}));
     end
-    LogLikeNew
-    iterations = iterations + 1
+    iterations = iterations + 1;
     
 end
     

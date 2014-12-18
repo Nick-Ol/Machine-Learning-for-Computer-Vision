@@ -53,5 +53,21 @@ hold off
 
 %TODO plot clusters
 %% EM
-test = EM(pos_feat, pos_centroids, 3);
-%% Initial parameters
+[pos_mu, pos_sigma, pos_clusters, pos_p] = EM(pos_feat, pos_centroids, 3);
+[neg_mu, neg_sigma, neg_clusters, neg_p] = EM(neg_feat, neg_centroids, 3);
+
+
+%plotting gaussians
+for i = 1:3
+    mu = pos_mu{i}'; 
+    sigma = pos_sigma{i}; 
+    x = 0:.01:1;
+    y = 0:.01:1;
+
+    [X Y] = meshgrid(x,y); 
+    Z = mvnpdf([X(:) Y(:)],mu,sigma); 
+    Z = reshape(Z,size(X));
+    hold on
+    contour(X,Y,Z), axis equal  
+end
+scatter(pos_feat(1,:), pos_feat(2,:))
