@@ -58,16 +58,28 @@ hold off
 
 
 %plotting gaussians
+x = -0.1:.01:1.1;
+y = -0.1:.01:1.1;
+
+[X Y] = meshgrid(x,y);
+figure()
 for i = 1:3
     mu = pos_mu{i}'; 
     sigma = pos_sigma{i}; 
-    x = 0:.01:1;
-    y = 0:.01:1;
-
-    [X Y] = meshgrid(x,y); 
     Z = mvnpdf([X(:) Y(:)],mu,sigma); 
     Z = reshape(Z,size(X));
     hold on
     contour(X,Y,Z), axis equal  
 end
 scatter(pos_feat(1,:), pos_feat(2,:))
+hold off
+figure();
+for i = 1:3
+    mu = neg_mu{i}'; 
+    sigma = neg_sigma{i};  
+    Z = mvnpdf([X(:) Y(:)],mu,sigma); 
+    Z = reshape(Z,size(X));
+    hold on
+    contour(X,Y,Z), axis equal  
+end
+scatter(neg_feat(1,:), neg_feat(2,:))
