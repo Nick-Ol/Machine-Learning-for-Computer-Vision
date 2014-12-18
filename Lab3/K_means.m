@@ -1,4 +1,4 @@
-function [ centroids, distortions ] = K_means( features, K, initInd )
+function [ labels, centroids, distortions ] = K_means( features, K, initInd )
 
 [dim, nbPoints] = size(features);
 labels = zeros(1, nbPoints)';

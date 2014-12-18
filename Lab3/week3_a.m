@@ -30,17 +30,17 @@ end
 pos_distortions = zeros(1, nbIt);
 neg_distortions = zeros(1, nbIt);
 for iter = 1:nbIt
-   [pos_centroids, pos_dist] = K_means(pos_feat, K, pos_init(iter, :));
+   [pos_labels, pos_centroids, pos_dist] = K_means(pos_feat, K, pos_init(iter, :));
    pos_distortions(iter) = pos_dist(length(pos_dist));
-   [neg_centroids, neg_dist] = K_means(neg_feat, K, neg_init(iter, :));
+   [neg_labels, neg_centroids, neg_dist] = K_means(neg_feat, K, neg_init(iter, :));
    neg_distortions(iter) = neg_dist(length(neg_dist));
 end
 %which init gives minimal distortions ?
 [val, neg_best] = min(neg_distortions);
 [val, pos_best] = min(pos_distortions);
 
-[pos_centroids, pos_dist] = K_means(pos_feat, K, pos_init(pos_best, :));
-[neg_centroids, neg_dist] = K_means(neg_feat, K, neg_init(neg_best, :));
+[pos_labels, pos_centroids, pos_dist] = K_means(pos_feat, K, pos_init(pos_best, :));
+[neg_labels, neg_centroids, neg_dist] = K_means(neg_feat, K, neg_init(neg_best, :));
 
 %plot distortion as a function of iterations
 figure();
@@ -52,13 +52,28 @@ ylabel('Distortion');
 legend('Positive features', 'Negative features')
 hold off
 
-%TODO plot clusters
+% plot clusters
+colors = ['g', 'r', 'b']
+figure()
+for i = 1:3
+    hold on
+    in_cluster_i = find(pos_labels==i);
+    scatter(pos_feat(1, in_cluster_i), pos_feat(2, in_cluster_i), colors(i));
+    scatter(pos_centroids(1, i), pos_centroids(2, i), 'black', 'fill');
+end
+figure()
+for i = 1:3
+    hold on
+    in_cluster_i = find(neg_labels==i);
+    scatter(neg_feat(1, in_cluster_i), neg_feat(2, in_cluster_i), colors(i));
+    scatter(neg_centroids(1, i), neg_centroids(2, i), 'black', 'fill');
+end
 %% EM
 [pos_mu, pos_sigma, pos_clusters, pos_p] = EM(pos_feat, pos_centroids, 3);
 [neg_mu, neg_sigma, neg_clusters, neg_p] = EM(neg_feat, neg_centroids, 3);
 
 
-%plotting gaussians
+%plot gaussians
 x = -0.1:.01:1.1;
 y = -0.1:.01:1.1;
 
