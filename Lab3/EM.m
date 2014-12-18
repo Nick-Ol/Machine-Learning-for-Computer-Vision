@@ -1,4 +1,4 @@
-function [ mu, sigma, clusters, p ] = EM( features, init_means, k )
+function [ mu, sigma, clusters, p, LLH ] = EM( features, init_means, k )
 
 [dim, n] = size(features);
 mu = cell(1, k);
@@ -6,6 +6,7 @@ sigma = cell(1, k);
 p = zeros(1, k);
 eta = zeros(n, k); %responsibilities
 clusters = zeros(n, 1);
+LLH = zeros(1, 1);
 
 for i = 1:k
     mu{i} = init_means(:, i);
@@ -37,6 +38,7 @@ while abs(LogLikeNew - LogLikeOld) > 0.1 && iterations < 500
         %new covariances
         sigma{i} = cov(features(:, in_cluster_i)');
     end
+    LLH(iterations + 1) = LogLikeNew;
     LogLikeOld = LogLikeNew;
     LogLikeNew = 0;
     for i = 1:k

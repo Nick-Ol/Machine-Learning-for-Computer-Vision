@@ -68,9 +68,18 @@ for i = 1:3
     scatter(neg_feat(1, in_cluster_i), neg_feat(2, in_cluster_i), colors(i));
     scatter(neg_centroids(1, i), neg_centroids(2, i), 'black', 'fill');
 end
+
+
 %% EM
-[pos_mu, pos_sigma, pos_clusters, pos_p] = EM(pos_feat, pos_centroids, 3);
-[neg_mu, neg_sigma, neg_clusters, neg_p] = EM(neg_feat, neg_centroids, 3);
+[pos_mu, pos_sigma, pos_clusters, pos_p, pos_LLH] = EM(pos_feat, pos_centroids, 3);
+[neg_mu, neg_sigma, neg_clusters, neg_p, neg_LLH] = EM(neg_feat, neg_centroids, 3);
+figure()
+hold on
+plot(pos_LLH)
+plot(neg_LLH)
+xlabel('Number of Expectation-Maximization iterations');
+ylabel('Log-likelihood');
+legend('Positive features', 'Negative features')
 
 
 %plot gaussians
@@ -90,8 +99,6 @@ for i = 1:3
     hold on
     contour(X,Y,Z), axis equal  
 end
-%scatter(pos_feat(1,:), pos_feat(2,:), 'r')
-hold off
 figure();
 for i = 1:3
     in_cluster_i = find(neg_clusters==i);
@@ -112,6 +119,7 @@ for i = 1:3
           - neg_p(i) * mvnpdf(coords', neg_mu{i}', neg_sigma{i});
 end
 boundary = reshape(posterior, [length(x), length(y)]);
+figure()
 scatter(features(1,pos),features(2,pos),'r','filled'); hold on,
 scatter(features(1,neg),features(2,neg),'b','filled'); hold on,
-contour(X, Y, boundary)
+contour(X, Y, boundary, [0,0])
