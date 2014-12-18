@@ -43,6 +43,7 @@ end
 [neg_centroids, neg_dist] = K_means(neg_feat, K, neg_init(neg_best, :));
 
 %plot distortion as a function of iterations
+figure();
 hold on
 plot(pos_dist)
 plot(neg_dist)
@@ -63,7 +64,10 @@ y = -0.1:.01:1.1;
 
 [X Y] = meshgrid(x,y);
 figure()
+colors = ['g', 'r', 'b']
 for i = 1:3
+    in_cluster_i = find(pos_clusters==i);
+    scatter(pos_feat(1, in_cluster_i), pos_feat(2, in_cluster_i), colors(i))
     mu = pos_mu{i}'; 
     sigma = pos_sigma{i}; 
     Z = mvnpdf([X(:) Y(:)],mu,sigma); 
@@ -71,10 +75,12 @@ for i = 1:3
     hold on
     contour(X,Y,Z), axis equal  
 end
-scatter(pos_feat(1,:), pos_feat(2,:))
+%scatter(pos_feat(1,:), pos_feat(2,:), 'r')
 hold off
 figure();
 for i = 1:3
+    in_cluster_i = find(neg_clusters==i);
+    scatter(neg_feat(1, in_cluster_i), neg_feat(2, in_cluster_i), colors(i))
     mu = neg_mu{i}'; 
     sigma = neg_sigma{i};  
     Z = mvnpdf([X(:) Y(:)],mu,sigma); 
@@ -82,4 +88,3 @@ for i = 1:3
     hold on
     contour(X,Y,Z), axis equal  
 end
-scatter(neg_feat(1,:), neg_feat(2,:))
