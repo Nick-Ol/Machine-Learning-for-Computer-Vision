@@ -88,3 +88,15 @@ for i = 1:3
     hold on
     contour(X,Y,Z), axis equal  
 end
+
+%% Boundary decisions
+coords = [X(:)';Y(:)'];
+posterior = zeros(size(coords, 2), 1);
+for i = 1:3
+    posterior = posterior + pos_p(i) * mvnpdf(coords', pos_mu{i}', pos_sigma{i}) ...
+          - neg_p(i) * mvnpdf(coords', neg_mu{i}', neg_sigma{i});
+end
+boundary = reshape(posterior, [length(x), length(y)]);
+scatter(features(1,pos),features(2,pos),'r','filled'); hold on,
+scatter(features(1,neg),features(2,neg),'b','filled'); hold on,
+contour(X, Y, boundary)
