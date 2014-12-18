@@ -1,10 +1,10 @@
-function [ centroids, distortion ] = K_means( features, K, initInd )
+function [ centroids, distortions ] = K_means( features, K, initInd )
 
 [dim, nbPoints] = size(features);
 labels = zeros(1, nbPoints)';
 prevLabels = ones(1, nbPoints)';
 centroids = zeros(dim, K);
-
+distortions = zeros(1, 1);
 %initializing centroids
 for i = 1:K 
    centroids(:, i) = features(:, initInd(i));
@@ -24,9 +24,8 @@ while (not(isequal(prevLabels, labels)))
     %assigning labels
     prevLabels = labels;
     [val, labels] = min(distances, [], 2);
+    distortions(iter) = sum(val);
 
-    distortion = sum(val);
-    
     %updating centroids
     for i = 1:K
         indices_in_i = find(labels==i);
