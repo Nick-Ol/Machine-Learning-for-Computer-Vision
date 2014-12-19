@@ -10,6 +10,7 @@
 \usepackage{array}
 \usepackage{multirow}
 \usepackage[margin = 2cm]{geometry}
+\usepackage{amsmath}
  
 \begin{document}
  
@@ -28,7 +29,7 @@ We run K-means 20 times for positive and negative datasets, then pick the initia
 	\caption{Distortion as a function of number of iterations, for the initializations giving the lower final distortions}
 \end{figure}
 We confirm that the distortion decreases at each iteration.
-and the clusters and centroids obtained at convergence:
+\\We also plot the clusters and centroids obtained at convergence:
 
 \begin{figure}[H]
 	\centering
@@ -62,5 +63,31 @@ Since we have the densities for each of the 2 classes, we can compute the poster
 \end{figure}
 
 \section{Sum/Max-Product algorithm}
+Forward : message passing 
+\\- from 3 and 4 to 2
+\\- from 2 and 5 to 1
+%
+\\ \\Backward : message passing
+\\- from 1 to 2 and 5
+\\- from 2 to 3 and 4
+%
+\\[5mm]$Z = \sum\limits_{X_1}{} B(X_1)$, we get $1.9150$.
+\\For $P(X_1)$ we get 
+$\begin{pmatrix} 0.2914 \\0.5311
+    \\0.1775\end{pmatrix} $
+    and for $P(X_2)$, $\begin{pmatrix} 0.4543 \\
+    0.5457\end{pmatrix} $
+    %
+%
+\\For the given vectors (in the order of the assignment), we found the respective probabilities : 0.0135, 0.0048 and 0.0243.
+\\[5mm]If we know $X_5 =1$ etc, this time we get $P(X_3) = \begin{pmatrix}0.1445
+    \\0.4913
+    \\0.1387
+    \\0.2254 \end{pmatrix}, 
+   P(X_2) = \begin{pmatrix}
+    0.7803
+   \\ 0.2197
+    \end{pmatrix}$ and $Z =0.0519$
+
 
 \end{document}
