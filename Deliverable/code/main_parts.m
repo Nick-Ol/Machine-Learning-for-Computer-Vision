@@ -123,9 +123,16 @@ switch lower(classifier_name)
                 /Z;
         end
 
-            case 'svm'
-            case 'svm-rbf'
-        end
+	case 'svm'
+    	addpath('libsvm/');
+        parameter_string_lin = sprintf('-s 0 -t 0');
+        model_lin = svmtrain_libsvm(labels', features', parameter_string_lin);
+        % TODO : cross validation for params ?
+	case 'svm-rbf'
+        addpath('libsvm/');
+        parameter_string_rbf = sprintf('-s 0 -t 2');
+        model_rbf = svmtrain_libsvm(labels', features', parameter_string_rbf);
+end
 if 0
 %% fun code: see what the classifier wants to see 
 figure,
