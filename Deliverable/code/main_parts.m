@@ -88,7 +88,7 @@ switch lower(classifier_name)
     case 'linear'    %% I can do this 
         w_linear = (labels*features')/(features*features');
     case 'logistic'  %% you do the rest 
-        w_logistic = log_reg(features', labels')
+        w_logistic = log_reg(features', labels')';
         
     case 'adaboost'
         Rounds_boosting = 400;
