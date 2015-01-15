@@ -1,4 +1,4 @@
-function [w] = linear_svm(features, labels, cost)
+function [w, model] = linear_svm(features, labels, cost)
 
 addpath('libsvm/');
 % for linear kernel, t = 0

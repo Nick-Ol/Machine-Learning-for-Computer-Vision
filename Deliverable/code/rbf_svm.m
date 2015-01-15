@@ -1,4 +1,4 @@
-function [w] = rbf_svm(features, labels, gamma, cost)
+function [w, model] = rbf_svm(features, labels, gamma, cost)
 
 addpath('libsvm/');
 % for rbf kernel, t = 2
