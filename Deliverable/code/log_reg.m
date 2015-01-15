@@ -7,7 +7,7 @@ w = zeros(size(features,2),1);
             J = gradient(w_prev, labels, features, 0);
             H = hessian(w_prev, features, 0);
             w = w_prev - H\J';
-  
+            w = w/sqrt(sum(w.^2));
             % convergence criterion
             if sqrt(sum((w-w_prev).^2)/ sqrt(sum(w.^2)))<.001
                 break
