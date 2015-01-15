@@ -1,6 +1,11 @@
 %% addpaths
 this_dir = fileparts(mfilename('fullpath')); addpath(this_dir); addpath(fullfile(this_dir,'steerable'));
 run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
+addpath('util/');
+
+%% seeding
+seed = 1;
+rng(seed);
 
 %% take a look into the problem
 im_id = 1;
@@ -94,14 +99,24 @@ switch lower(classifier_name)
         [alpha,coord,polarity,theta] = adaboost(400, features, labels);
 
 	case 'svm'
-    	addpath('libsvm/');
-        parameter_string_lin = sprintf('-s 0 -t 0');
-        model_lin = svmtrain_libsvm(labels', features', parameter_string_lin);
-        % TODO : cross validation for params ?
-	case 'svm-rbf'
-        addpath('libsvm/');
-        parameter_string_rbf = sprintf('-s 0 -t 2');
-        model_rbf = svmtrain_libsvm(labels', features', parameter_string_rbf);
+        perm = randperm(size(features,2));
+        features_perm = features(:, perm);
+        labels_perm = labels(:, perm); % dispatch the labels
+        Ncosts  = 20;
+        cost_range = logsample(.1,1000,Ncosts);
+        best_cost_lin = cross_val_linear_svm(10, cost_range, features_perm', labels_perm');
+    	w_lin_svm = linear_svm(features', labels', best_cost_lin);
+	
+    case 'svm-rbf'
+        perm = randperm(size(features,2));
+        features_perm = features(:, perm);
+        labels_perm = labels(:, perm); % dispatch the labels;
+        Ngammas = 20;
+        Ncosts  = 20;
+        gamma_range = logsample(.1,1000,Ngammas);
+        cost_range  = logsample(.1,1000,Ncosts);
+        [best_cost_rbf, best_gamma] = cross_val_rbf_svm(10, cost_range, gamma_range, features_perm', labels_perm');
+        w_rbf_svm = rbf_svm(features', labels', best_gamma, best_cost_rbf);
 end
 if 0
 %% fun code: see what the classifier wants to see 
