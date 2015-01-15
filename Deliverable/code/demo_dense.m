@@ -10,13 +10,13 @@ input_image  = single(rgb2gray(imread('1.jpg')));
 [fts,crds,idxs] =  get_features(input_image,'sift');
 
 %% choose a single image point & visualize sift descriptor around it  
-
+%point = 1000
 figure(1),imshow(input_image/255);
 hold on,scatter(crds(1,point),crds(2,point));
 vl_plotsiftdescriptor(fts(1:128,point),[crds(:,point);4;0]);
 pause;
 clf;
-end
+
 
 %% show elements of sift descriptor, 'dense mode'
 [sv,sh] = size(input_image);

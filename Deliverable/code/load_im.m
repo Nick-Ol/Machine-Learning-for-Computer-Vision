@@ -8,9 +8,11 @@ this_file  = mfilename('fullpath');
 data_dir   = fullfile(dir_up,'data');         %% and then move into data  
 if label==1,
     %% load face image 
+
+
     face_name        = sprintf('BioID_%i%i%i%i',ths(image_id),hun(image_id),dec(image_id),un(image_id));
     data_dir         = fullfile(data_dir,'faces');
-    fnm_ground_truth = fullfile(data_dir,'points_20',[face_name,'.pts']);
+    fnm_ground_truth = fullfile(data_dir,'points_20',[lower(face_name),'.pts']);
     fnm_load         = fullfile(data_dir,[face_name,'.pgm']);
     
     face_image  = pgmread3_local(fnm_load)/256;

@@ -1,6 +1,6 @@
 %% addpaths
 this_dir = fileparts(mfilename('fullpath')); addpath(this_dir); addpath(fullfile(this_dir,'steerable'));
-
+run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
 
 %% take a look into the problem
 im_id = 1;
@@ -71,10 +71,11 @@ for im_idx = [1:length(train_set)]
     
     [input_image,points]    = load_im(image_id,image_lb,normalize,part);
     features_im             = get_features(input_image,feat,points);
-    reject = any((isnan(features_im)|isinf(features_im)),1); features_im(:,reject) = [];
+    reject = any((isnan(features_im)|isinf(features_im)),1); 
+    features_im(:,reject) = [];
 
     features                = [features,features_im];
-    labels                  = [labels,  image_lb*ones(1,size(points,2))];
+    labels                  = [labels,  image_lb*ones(1,size(features_im,2))];
     
     fprintf(2,' %i',mod(im_idx-1,10));
     if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
@@ -183,7 +184,7 @@ title_string    = ...
 title(title_string)
 figure;
 plot(precision,recall); axis([0,1,0,1]);
-title(tile_string);
+title(title_string);
 end
 %% Step 3: Dense evaluation of classifier
     
