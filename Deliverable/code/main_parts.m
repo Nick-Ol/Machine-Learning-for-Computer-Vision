@@ -165,6 +165,21 @@ switch lower(classifier_name)
                 threshold   = thresholds(thr_ind);
                 [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_linear, threshold, features', labels');
             end
+         case 'logistic'
+            for thr_ind  = 1:length(thresholds)
+                threshold   = thresholds(thr_ind);
+                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_logistic, threshold, features', labels');
+            end
+         case 'svm'
+            for thr_ind  = 1:length(thresholds)
+                threshold   = thresholds(thr_ind);
+                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_lin_svm, threshold, features', labels');
+            end
+         case 'svm-rbf'
+            for thr_ind  = 1:length(thresholds)
+                threshold   = thresholds(thr_ind);
+                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_rbf_svm, threshold, features', labels');
+            end
 end
 
 figure;
