@@ -110,7 +110,7 @@ switch lower(classifier_name)
     case 'svm-rbf'
         perm = randperm(size(features,2));
         features_perm = features(:, perm);
-        labels_perm = labels(:, perm); % dispatch the labels;
+        labels_perm = labels(:, perm); % dispatch the labels
         Ngammas = 20;
         Ncosts  = 20;
         gamma_range = logsample(.1,1000,Ngammas);
@@ -157,15 +157,16 @@ end
 %% Step 2: Precision recall curve for classifier (your code here);
 if 0
 thresholds = [-2:.01:2];
-for thr_ind  = 1:length(thresholds)
-    threshold   = thresholds(thr_ind);
-    precision(thr_ind) = your_code;
-    recall(thr_ind)    = your_code;
+precision = zeros(1,length(thresholds));
+recall = zeros(1,length(thresholds));
+switch lower(classifier_name)
+        case 'linear'
+            for thr_ind  = 1:length(thresholds)
+                threshold   = thresholds(thr_ind);
+                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_linear, threshold, features', labels');
+            end
 end
-plot(precision,recall); 
-title_string    = ...
-    sprintf('Precision-recall curve for classifier: %s and part: %s',classifier_name,part_name);
-title(title_string)
+
 figure;
 plot(precision,recall); axis([0,1,0,1]);
 title(title_string);
