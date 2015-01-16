@@ -202,8 +202,11 @@ for image_lb = [0,1]
         case 'linear',
             score_classifier = w_linear*dense_features;
         case 'logistic'
+            score_classifier = w_logistic*dense_features;
         case 'svm'
+            score_classifier = w_lin_svm*dense_features;
         case 'svm-rbf'
+            score_classifier = w_rbf_svm*dense_features;
         case 'adaboost'
     end
     [sv,sh]     = size(input_image);
@@ -211,6 +214,6 @@ for image_lb = [0,1]
     score(idxs) = score_classifier;
     
     title_string    = sprintf('%s score for part: %s',classifier_name,part_name);
-    figure,imagesc(score,[0,.5]); title(title_string);
+    figure,imagesc(score,[min(score_classifier),max(score_classifier)]); title(title_string);
     figure,imshow(input_image);
 end
