@@ -1,4 +1,4 @@
-l%% Maximum Likelihood parameter estimation for pairwise terms
+%% Maximum Likelihood parameter estimation for pairwise terms
 for im_id=1:1000,
     [input_image,points] = load_im(im_id,1,1);
     center = points(:,5);
@@ -82,6 +82,32 @@ imshow(input_image);
 subplot(1,2,2);
 imagesc(max(belief_nose,-10));
 axis image;
+
+%% Home-made max-product algorithm
+
+my_mess = cell(1,4);
+
+for pt = [1:4]
+    sch = sg{pt}(1);
+    scv = sg{pt}(2);
+    mh  = -mn{pt}(1);
+    mv  = -mn{pt}(2);
+    
+    my_mess{pt} = zeros(sv,sh);
+    for Xr_1 = 1:sv
+        for Xr_2 = 1:sh
+           to_max = zeros(sv,sh);
+            for Xp_1 = 1:sv
+                for Xp_2 = 1:sh
+                    to_max(Xp_1, Xp_2) = score_part{pt}(Xp_1,Xp_2)...
+                        *pairwise(Xp_1, Xp_2, Xr_1, Xr_2, sch, scv, mh, mv);
+                end
+            end
+            my_mess{pt}(Xr_1, Xr_2) = max(to_max(:));
+        end
+    end
+end
+
 
 
 %% show ground-truth bounding box. 
