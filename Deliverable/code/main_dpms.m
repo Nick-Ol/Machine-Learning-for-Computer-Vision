@@ -86,6 +86,14 @@ axis image;
 %% Home-made max-product algorithm
 
 my_mess = cell(1,4);
+row_points = zeros(sv,sh); % value = row number
+col_points = zeros(sv,sh); % value = column number
+for i = 1:sv
+    for j=1:sh
+        row_points(i,j) = i;
+        col_points(i,j) = j;
+    end
+end
 
 for pt = [1:4]
     sch = sg{pt}(1);
@@ -95,14 +103,10 @@ for pt = [1:4]
     
     my_mess{pt} = zeros(sv,sh);
     for Xr_1 = 1:sv
+        Xr_1  % see at which row we are in the computation
         for Xr_2 = 1:sh
-           to_max = zeros(sv,sh);
-            for Xp_1 = 1:sv
-                for Xp_2 = 1:sh
-                    to_max(Xp_1, Xp_2) = score_part{pt}(Xp_1,Xp_2)...
-                        *pairwise(Xp_1, Xp_2, Xr_1, Xr_2, sch, scv, mh, mv);
-                end
-            end
+            to_max = score_part{pt}...
+                +log(pairwise(row_points, col_points, Xr_1, Xr_2, sch, scv, mh, mv));
             my_mess{pt}(Xr_1, Xr_2) = max(to_max(:));
         end
     end
