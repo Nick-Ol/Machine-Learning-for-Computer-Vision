@@ -99,8 +99,8 @@ for pt = [1:4]
     pt % see at which part we are in the computation
     sch = sg{pt}(1);
     scv = sg{pt}(2);
-    mh  = mn{pt}(1); % no minus ?
-    mv  = mn{pt}(2); % no minus ?
+    mh  = -mn{pt}(1); % minus ?
+    mv  = -mn{pt}(2); % minus ?
     
     my_mess{pt} = zeros(sv,sh);
     for Xr_1 = 1:sv
@@ -117,7 +117,7 @@ my_belief_nose=  squeeze(score_part{5});
 
 for pt = [1:4],
     figure(pt),
-    imshow(my_mess{pt},[-2,2]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
+    imshow(my_mess{pt},[-8,-4]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
     my_belief_nose = my_belief_nose + my_mess{pt};
 end
 
@@ -125,7 +125,7 @@ figure(5),
 subplot(1,2,1);
 imshow(input_image);
 subplot(1,2,2);
-imagesc(max(my_belief_nose,-10));
+imagesc(max(my_belief_nose,-60));
 axis image;
 
 %% Root-to-leaves message passing
@@ -142,14 +142,14 @@ for pt = [1:4]
     def(3) = 1/(2*scv^2);
     def(4) = -2*mv/(2*scv^2);
     
-    [mess{pt},ix{pt},iy{pt}] = dt(squeeze(score_part{5}),def(1),def(2),def(3),def(4));
+    [mess_to_leaves{pt},ix_leaves{pt},iy_leaves{pt}] = dt(squeeze(score_part{5}),def(1),def(2),def(3),def(4));
     offset =  mh^2/(2*sch^2) + mv^2/(2*scv^2);
     mess{pt} = mess{pt} - offset;
 end
 
 for pt = [1:4],
     figure(pt),
-    imshow(mess_to_leaves{pt},[-2,2]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
+    imshow(mess_to_leaves{pt},[20,40]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
 end
 
 %% show ground-truth bounding box. 
@@ -164,11 +164,3 @@ max_y = max(points(2,:));
 score = 1;
 bbox  = [min_x,min_y,max_x,max_y,score];
 showboxes(input_image,bbox);
-
-
-
-
-
-    
-
-
