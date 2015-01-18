@@ -96,23 +96,61 @@ for i = 1:sv
 end
 
 for pt = [1:4]
+    pt % see at which part we are in the computation
     sch = sg{pt}(1);
     scv = sg{pt}(2);
-    mh  = -mn{pt}(1);
-    mv  = -mn{pt}(2);
+    mh  = mn{pt}(1); % no minus ?
+    mv  = mn{pt}(2); % no minus ?
     
     my_mess{pt} = zeros(sv,sh);
     for Xr_1 = 1:sv
         Xr_1  % see at which row we are in the computation
         for Xr_2 = 1:sh
             to_max = score_part{pt}...
-                +log(pairwise(row_points, col_points, Xr_1, Xr_2, sch, scv, mh, mv));
+                + pairwise(row_points, col_points, Xr_1, Xr_2, sch, scv, mh, mv);
             my_mess{pt}(Xr_1, Xr_2) = max(to_max(:));
         end
     end
 end
 
+my_belief_nose=  squeeze(score_part{5});
 
+for pt = [1:4],
+    figure(pt),
+    imshow(my_mess{pt},[-2,2]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
+    my_belief_nose = my_belief_nose + my_mess{pt};
+end
+
+figure(5),
+subplot(1,2,1);
+imshow(input_image);
+subplot(1,2,2);
+imagesc(max(my_belief_nose,-10));
+axis image;
+
+%% Root-to-leaves message passing
+
+mess_to_leaves = cell(1,4);
+for pt = [1:4]
+    sch = sg{pt}(1);
+    scv = sg{pt}(2);
+    mh  = -mn{pt}(1);
+    mv  = -mn{pt}(2);
+    
+    def(1) = 1/(2*sch^2);
+    def(2) = -2*mh/(2*sch^2);
+    def(3) = 1/(2*scv^2);
+    def(4) = -2*mv/(2*scv^2);
+    
+    [mess{pt},ix{pt},iy{pt}] = dt(squeeze(score_part{5}),def(1),def(2),def(3),def(4));
+    offset =  mh^2/(2*sch^2) + mv^2/(2*scv^2);
+    mess{pt} = mess{pt} - offset;
+end
+
+for pt = [1:4],
+    figure(pt),
+    imshow(mess_to_leaves{pt},[-2,2]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
+end
 
 %% show ground-truth bounding box. 
 %% You will need to adapt this code to make it show your bounding box proposals
