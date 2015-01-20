@@ -4,8 +4,7 @@ run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
 addpath('util/');
 
 %% seeding
-seed = 1;
-rng(seed);
+rand('seed',0);
 
 %% take a look into the problem
 im_id = 1;
@@ -118,8 +117,9 @@ switch lower(classifier_name)
         [best_cost_rbf, best_gamma] = cross_val_rbf_svm(10, cost_range, gamma_range, features_perm', labels_perm');
         w_rbf_svm = rbf_svm(features', labels', best_gamma, best_cost_rbf);
 end
-if 0
+
 %% fun code: see what the classifier wants to see 
+if 0
 figure,
 vl_plotsiftdescriptor(max(w_linear(1:end-1)',0)); 
 title('positive components of weight vector');
@@ -180,7 +180,7 @@ end
 title_string    = sprintf('%s precision-recall for part: %s',classifier_name,part_name);
 figure;
 plot(precision,recall); axis([0,1,0,1]);
-title(title_string);
+title(title_string); xlabel('Precision'); ylabel('Recall');
 end
 %% Step 3: Dense evaluation of classifier
     
