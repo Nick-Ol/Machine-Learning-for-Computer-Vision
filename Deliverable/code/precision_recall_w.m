@@ -1,26 +1,34 @@
-function[precision, recall] = precision_recall_w(w, threshold, features, labels)
+function[precision, recall] = precision_recall_w(w, thresholds, features, labels)
 
-predict_labels = (w*features' >= threshold);
+precision = zeros(1,length(thresholds));
+recall= zeros(1,length(thresholds));
+scores = w*features';
 
-predict_pos = find(predict_labels==1);
-predict_neg = find(predict_labels==0);
-label_pos = find(labels==1);
-label_neg = find(labels==0);
+for thr_ind  = 1:length(thresholds)
+    threshold   = thresholds(thr_ind);
+    predict_labels = (scores >= threshold);
 
-TP = length(intersect(label_pos,predict_pos));
-FN = length(intersect(label_pos, predict_neg));
-FP = length(intersect(label_neg, predict_pos));
+    predict_pos = find(predict_labels==1);
+    predict_neg = find(predict_labels==0);
+    label_pos = find(labels==1);
+    label_neg = find(labels==0);
 
-if TP==0
-    precision = 0;
-    recall = 0;
-    if FP==0
-        precision = 1;
+    TP = length(intersect(label_pos,predict_pos));
+    FN = length(intersect(label_pos, predict_neg));
+    FP = length(intersect(label_neg, predict_pos));
+
+    if TP==0
+        precision(thr_ind) = 0;
+        recall(thr_ind) = 0;
+        if FP==0
+            precision(thr_ind) = 1;
+        end
+        if FN==0
+            recall(thr_ind) = 1;
+        end
+    else
+    precision(thr_ind) = TP/(TP+FP);
+    recall(thr_ind) = TP/(TP+FN);
     end
-    if FN==0
-        recall = 1;
-    end
-else
-precision = TP/(TP+FP);
-recall = TP/(TP+FN);
+end
 end

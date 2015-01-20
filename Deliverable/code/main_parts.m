@@ -157,31 +157,22 @@ end
 %% Step 2: Precision recall curve for classifier (your code here);
 if 0
 thresholds = [-2:.01:2];
-precision = zeros(1,length(thresholds));
-recall = zeros(1,length(thresholds));
 switch lower(classifier_name)
         case 'linear'
-            for thr_ind  = 1:length(thresholds)
-                threshold   = thresholds(thr_ind);
-                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_linear, threshold, features', labels');
-            end
+            [precision, recall] = precision_recall_w(w_linear, thresholds, features', labels');
+
          case 'logistic'
-            for thr_ind  = 1:length(thresholds)
-                threshold   = thresholds(thr_ind);
-                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_logistic, threshold, features', labels');
-            end
+         	[precision, recall] = precision_recall_w(w_logistic, threshold, features', labels');
+
          case 'svm'
-            for thr_ind  = 1:length(thresholds)
-                threshold   = thresholds(thr_ind);
-                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_lin_svm, threshold, features', labels');
-            end
+         	[precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_lin_svm, threshold, features', labels');
+
          case 'svm-rbf'
-            for thr_ind  = 1:length(thresholds)
-                threshold   = thresholds(thr_ind);
-                [precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_rbf_svm, threshold, features', labels');
-            end
+         	[precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_rbf_svm, threshold, features', labels');
+
 end
 
+title_string    = sprintf('%s precision-recall for part: %s',classifier_name,part_name);
 figure;
 plot(precision,recall); axis([0,1,0,1]);
 title(title_string);
@@ -210,7 +201,7 @@ for image_lb = [0,1]
         case 'adaboost'
     end
     [sv,sh]     = size(input_image);
-    score       = zeros(sv,sh);
+    score       = -inf*ones(sv,sh);
     score(idxs) = score_classifier;
     
     title_string    = sprintf('%s score for part: %s',classifier_name,part_name);
