@@ -32,13 +32,6 @@ total_negatives = 200;       %% set to 200 by the end
 train_negatives = [1:2:total_negatives];
 test_negatives  = [2:2:total_negatives];
 
-
-train_set = [train_positives,            train_negatives];
-train_lbl = [ones(size(train_positives)),zeros(1,length(train_negatives))];
-
-test_set  = [test_positives,             test_negatives];
-test_lbl  = [ones(size(test_positives)), zeros(1,length(test_negatives))];
-
 %%-------------------------------
 %% Experiment setup
 %--------------------------------
@@ -50,7 +43,48 @@ classifier          = 1; %% change the classifier here
 classifier_name     = classifier_names{classifier};
 for feature_ind = 1:2
     feat                = feature_names{feature_ind};
-    %part                = 1; %% change to train classifiers for other parts 
+    
+    normalize = 1;  % makes sure faces come at a fixed scale
+    features_train_neg  = [];
+    labels_train_neg    = [];
+    % We can compute the features for negative labels only once :
+    fprintf('Gathering negative training set: \n0+ ');
+    image_lb = 0;
+    for im_idx = [1:length(train_negatives)]
+        image_id  = train_negatives(im_idx);
+
+        [input_image,points]    = load_im(image_id,image_lb,normalize);
+        features_im             = get_features(input_image,feat,points);
+        reject = any((isnan(features_im)|isinf(features_im)),1); 
+        features_im(:,reject) = [];
+
+        features_train_neg                = [features_train_neg,features_im];
+        labels_train_neg                  = [labels_train_neg,  image_lb*ones(1,size(features_im,2))];
+
+        fprintf(2,' %i',mod(im_idx-1,10));
+        if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
+    end
+    
+    normalize = 1;  % makes sure faces come at a fixed scale
+    features_test_neg  = [];
+    labels_test_neg    = [];
+    fprintf('Gathering negative test set: \n0+ ');
+    image_lb = 0;
+    for im_idx = [1:length(test_negatives)]
+        image_id  = test_negatives(im_idx);
+
+        [input_image,points]    = load_im(image_id,image_lb,normalize);
+        features_im             = get_features(input_image,feat,points);
+        reject = any((isnan(features_im)|isinf(features_im)),1); 
+        features_im(:,reject) = [];
+
+        features_test_neg = [features_test_neg,features_im];
+        labels_test_neg = [labels_test_neg,  image_lb*ones(1,size(features_im,2))];
+
+        fprintf(2,' %i',mod(im_idx-1,10));
+        if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
+    end
+    
     for part =1:5
         part_name           = part_names{part};
 
@@ -63,57 +97,60 @@ for feature_ind = 1:2
 
         %% Step 1: gather dataset 
         normalize = 1;  % makes sure faces come at a fixed scale
-        features  = [];
-        labels    = [];
-        fprintf('Gathering training set: \n0+ ');
-
-        for im_idx = [1:length(train_set)]
-            image_id  = train_set(im_idx);
-            image_lb  = train_lbl(im_idx);
+        features_train_pos  = [];
+        labels_train_pos    = [];
+        % Only for positive labels :
+        fprintf('Gathering positive training set: \n0+ ');
+        image_lb = 1;
+        for im_idx = [1:length(train_positives)]
+            image_id  = train_positives(im_idx);
 
             [input_image,points]    = load_im(image_id,image_lb,normalize,part);
             features_im             = get_features(input_image,feat,points);
             reject = any((isnan(features_im)|isinf(features_im)),1); 
             features_im(:,reject) = [];
 
-            features                = [features,features_im];
-            labels                  = [labels,  image_lb*ones(1,size(features_im,2))];
+            features_train_pos = [features_train_pos,features_im];
+            labels_train_pos = [labels_train_pos,  image_lb*ones(1,size(features_im,2))];
 
             fprintf(2,' %i',mod(im_idx-1,10));
             if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
         end
 
+        % Just need to concatenate negative and positive features
+        features_train = [features_train_pos, features_train_neg];
+        labels_train = [labels_train_pos, labels_train_neg];
 
         %% Step 2: train classifier 
 
         switch lower(classifier_name)
             case 'linear'    %% I can do this 
-                w_linear = (labels*features')/(features*features');
+                w_linear = (labels_train*features_train')/(features_train*features_train');
             case 'logistic'  %% you do the rest 
-                w_logistic = log_reg(features', labels')';
+                w_logistic = log_reg(features_train', labels_train')';
 
             case 'adaboost'
-                [alpha,coord,polarity,theta] = adaboost(200, features, labels);
+                [alpha,coord,polarity,theta] = adaboost(200, features_train, labels_train);
 
             case 'svm'
-                perm = randperm(size(features,2));
-                features_perm = features(:, perm);
-                labels_perm = labels(:, perm); % dispatch the labels
+                perm = randperm(size(features_train,2));
+                features_perm = features_train(:, perm);
+                labels_perm = labels_train(:, perm); % dispatch the labels
                 Ncosts  = 20;
                 cost_range = logsample(.1,1000,Ncosts);
                 best_cost_lin = cross_val_linear_svm(10, cost_range, features_perm', labels_perm');
-                w_lin_svm = linear_svm(features', labels', best_cost_lin);
+                w_lin_svm = linear_svm(features_train', labels_train', best_cost_lin);
 
             case 'svm-rbf'
-                perm = randperm(size(features,2));
-                features_perm = features(:, perm);
-                labels_perm = labels(:, perm); % dispatch the labels
+                perm = randperm(size(features_train,2));
+                features_perm = features_train(:, perm);
+                labels_perm = labels_train(:, perm); % dispatch the labels
                 Ngammas = 20;
                 Ncosts  = 20;
                 gamma_range = logsample(.1,1000,Ngammas);
                 cost_range  = logsample(.1,1000,Ncosts);
                 [best_cost_rbf, best_gamma] = cross_val_rbf_svm(10, cost_range, gamma_range, features_perm', labels_perm');
-                w_rbf_svm = rbf_svm(features', labels', best_gamma, best_cost_rbf);
+                w_rbf_svm = rbf_svm(features_train', labels_train', best_gamma, best_cost_rbf);
         end
 
         %% fun code: see what the classifier wants to see 
@@ -132,45 +169,48 @@ for feature_ind = 1:2
         %-------------------------------------------------------------------
         %% Step 1: gather dataset 
         normalize = 1;  % makes sure faces come at a fixed scale
-        features  = [];
-        labels    = [];
-        fprintf('Gathering test set: \n0 +');
-
-        for im_idx = [1:length(test_set)]
-            image_id  = test_set(im_idx);
-            image_lb  = test_lbl(im_idx);
+        features_test_pos  = [];
+        labels_test_pos    = [];
+        fprintf('Gathering positive test set: \n0 +');
+        image_lb = 1;
+        for im_idx = [1:length(test_positives)]
+            image_id  = test_positives(im_idx);
 
             [input_image,points]    = load_im(image_id,image_lb,normalize,part);
             features_im             = get_features(input_image,feat,points);
 
             reject = any((isnan(features_im)|isinf(features_im)),1); features_im(:,reject) = [];   
-            features                = [features,features_im];
+            features_test_pos = [features_test_pos,features_im];
 
-            labels                  = [labels,  image_lb*ones(1,size(points,2))];
+            labels_test_pos = [labels_test_pos,  image_lb*ones(1,size(points,2))];
 
             fprintf(2,'.%i',mod(im_idx-1,10));
             if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',floor(im_idx/10)); end
         end
+        
+        features_test = [features_test_pos, features_test_neg];
+        labels_test = [labels_test_pos, labels_test_neg];
+
 
         %% Step 2: Precision recall curve for classifier (your code here);
 
         thresholds = [-2:.01:2];
         switch lower(classifier_name)
                 case 'linear'
-                    [precision, recall] = precision_recall_w(w_linear*features, thresholds, labels');
+                    [precision, recall] = precision_recall_w(w_linear*features_test, thresholds, labels_test');
 
                  case 'logistic'
-                    [precision, recall] = precision_recall_w(w_logistic*features, thresholds, labels');
+                    [precision, recall] = precision_recall_w(w_logistic*features_test, thresholds, labels_test');
 
                  case 'svm'
-                    [precision, recall] = precision_recall_w(w_lin_svm*features, thresholds, labels');
+                    [precision, recall] = precision_recall_w(w_lin_svm*features_test, thresholds, labels_test');
 
                  case 'svm-rbf'
-                    [precision, recall] = precision_recall_w(w_rbf_svm*features, thresholds, labels');
+                    [precision, recall] = precision_recall_w(w_rbf_svm*features_test, thresholds, labels_test');
 
                  case 'adaboost'
-                    scores = adaboost_scores(polarity, features, coord, theta, alpha);
-                    [precision, recall] = precision_recall_w(scores, thresholds, labels');
+                    scores = adaboost_scores(polarity, features_test, coord, theta, alpha);
+                    [precision, recall] = precision_recall_w(scores, thresholds, labels_test');
 
         end
 
