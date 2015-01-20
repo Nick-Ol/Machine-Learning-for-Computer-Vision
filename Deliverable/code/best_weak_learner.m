@@ -44,4 +44,3 @@ end
 [err_wl,coordinate_wl] = min(err);
 polarity_wl = polarity(coordinate_wl);
 theta_wl    = threshold(coordinate_wl);
-
