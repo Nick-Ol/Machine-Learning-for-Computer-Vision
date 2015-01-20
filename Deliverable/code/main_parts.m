@@ -201,6 +201,7 @@ for feature_ind = 1:2
                 case 'svm-rbf'
                     score_classifier = w_rbf_svm*dense_features;
                 case 'adaboost'
+                    score_classifier = adaboost_scores(polarity, dense_features,coord,theta, alpha);
             end
             [sv,sh]     = size(input_image);
             score       = -inf*ones(sv,sh);
