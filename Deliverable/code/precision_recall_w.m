@@ -1,8 +1,8 @@
-function[precision, recall] = precision_recall_w(w, thresholds, features, labels)
+function[precision, recall] = precision_recall_w(scores, thresholds, labels)
 
 precision = zeros(1,length(thresholds));
 recall= zeros(1,length(thresholds));
-scores = w*features';
+
 
 for thr_ind  = 1:length(thresholds)
     threshold   = thresholds(thr_ind);

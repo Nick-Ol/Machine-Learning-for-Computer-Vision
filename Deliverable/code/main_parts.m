@@ -24,7 +24,7 @@ hold on,scatter(pts(1,:),pts(2,:),'r','filled');
 %--------------------------------
 
 %% images with faces
-total_positives = 30;      %% set to 1500 by the end
+total_positives = 200;      %% set to 1500 by the end
 train_positives = [1:2:total_positives];
 test_positives  = [2:2:total_positives];
 
@@ -96,7 +96,7 @@ switch lower(classifier_name)
         w_logistic = log_reg(features', labels')';
         
     case 'adaboost'
-        [alpha,coord,polarity,theta] = adaboost(400, features, labels);
+        [alpha,coord,polarity,theta] = adaboost(200, features, labels);
 
 	case 'svm'
         perm = randperm(size(features,2));
@@ -159,16 +159,21 @@ if 0
 thresholds = [-2:.01:2];
 switch lower(classifier_name)
         case 'linear'
-            [precision, recall] = precision_recall_w(w_linear, thresholds, features', labels');
+            [precision, recall] = precision_recall_w(w_linear*features, thresholds, labels');
 
          case 'logistic'
-         	[precision, recall] = precision_recall_w(w_logistic, threshold, features', labels');
+         	[precision, recall] = precision_recall_w(w_logistic*features, thresholds, labels');
 
          case 'svm'
-         	[precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_lin_svm, threshold, features', labels');
+         	[precision, recall] = precision_recall_w(w_lin_svm*features, thresholds, labels');
 
          case 'svm-rbf'
-         	[precision(thr_ind), recall(thr_ind)] = precision_recall_w(w_rbf_svm, threshold, features', labels');
+         	[precision, recall] = precision_recall_w(w_rbf_svm*features, thresholds, labels');
+           
+         case 'adaboost'
+            scores = adaboost_scores(polarity, features, coord, theta, alpha);
+            [precision, recall] = precision_recall_w(scores, thresholds, labels');
+        
 
 end
 
