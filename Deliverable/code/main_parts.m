@@ -23,12 +23,12 @@ hold on,scatter(pts(1,:),pts(2,:),'r','filled');
 %--------------------------------
 
 %% images with faces
-total_positives = 150;      %% set to 1500 by the end
+total_positives = 1500;      %% set to 1500 by the end
 train_positives = [1:2:total_positives];
 test_positives  = [2:2:total_positives];
 
 %% background images (seem few, but we draw multiple negatives samples per image)
-total_negatives = 20;       %% set to 200 by the end
+total_negatives = 200;       %% set to 200 by the end
 train_negatives = [1:2:total_negatives];
 test_negatives  = [2:2:total_negatives];
 
