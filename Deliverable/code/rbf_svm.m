@@ -2,7 +2,7 @@ function [w, model] = rbf_svm(features, labels, gamma, cost)
 
 addpath('libsvm/');
 % for rbf kernel, t = 2
-parameter_string = sprintf('-s 0 -t 2 -c %.5f',gamma, cost);
+parameter_string = sprintf('-s 0 -t 2 -g %.5f -c %.5f', gamma, cost);
 model = svmtrain_libsvm(labels, features, parameter_string);
 
 alpha = model.sv_coef; % support vector coefficients

@@ -2,7 +2,7 @@ function [w, model] = linear_svm(features, labels, cost)
 
 addpath('libsvm/');
 % for linear kernel, t = 0
-parameter_string = sprintf('-s 0 -t 0 -c %.5f',cost);
+parameter_string = sprintf('-s 0 -t 0 -c %.5f', cost);
 model = svmtrain_libsvm(labels, features, parameter_string);
 
 alpha = model.sv_coef; % support vector coefficients
