@@ -85,7 +85,7 @@ for feature_ind = 1:2
         if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
     end
     
-    for part =1:5
+    for part = 1:5
         part_name           = part_names{part};
 
         %% use this string to save your classifiers 
@@ -136,8 +136,8 @@ for feature_ind = 1:2
                 perm = randperm(size(features_train,2));
                 features_perm = features_train(:, perm);
                 labels_perm = labels_train(:, perm); % dispatch the labels
-                Ncosts  = 20;
-                cost_range = logsample(.1,1000,Ncosts);
+                Ncosts  = 10;
+                cost_range = logsample(1e-5,1,Ncosts);
                 best_cost_lin = cross_val_linear_svm(10, cost_range, features_perm', labels_perm');
                 w_lin_svm = linear_svm(features_train', labels_train', best_cost_lin);
 
@@ -145,10 +145,10 @@ for feature_ind = 1:2
                 perm = randperm(size(features_train,2));
                 features_perm = features_train(:, perm);
                 labels_perm = labels_train(:, perm); % dispatch the labels
-                Ngammas = 20;
-                Ncosts  = 20;
-                gamma_range = logsample(.1,1000,Ngammas);
-                cost_range  = logsample(.1,1000,Ncosts);
+                Ngammas = 10;
+                Ncosts  = 10;
+                gamma_range = logsample(1e-5,1,Ngammas);
+                cost_range  = logsample(1e-5,1,Ncosts);
                 [best_cost_rbf, best_gamma] = cross_val_rbf_svm(10, cost_range, gamma_range, features_perm', labels_perm');
                 w_rbf_svm = rbf_svm(features_train', labels_train', best_gamma, best_cost_rbf);
         end
