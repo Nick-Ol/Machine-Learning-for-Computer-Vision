@@ -64,7 +64,7 @@ for pt = [1:4]
     mess{pt} = mess{pt} - offset;
 end
 
-belief_nose=  squeeze(score_part{5});
+belief_nose = squeeze(score_part{5});
 
 parts = {'left eye','right eye','left mouth','right mouth','nose'};
 for pt = [1:4],
@@ -73,7 +73,7 @@ for pt = [1:4],
     imshow(squeeze(score_part{pt}),[-2,2]); title(['\Phi_{',parts{pt},'}(X)'],'fontsize',20);
     subplot(1,2,2);
     imshow(mess{pt},[-2,2]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
-    belief_nose= belief_nose + mess{pt};
+    belief_nose = belief_nose + mess{pt};
 end
 
 figure(5),
@@ -99,8 +99,8 @@ for pt = [1:4]
     pt % see at which part we are in the computation
     sch = sg{pt}(1);
     scv = sg{pt}(2);
-    mh  = -mn{pt}(1); % minus ?
-    mv  = -mn{pt}(2); % minus ?
+    mh  = mn{pt}(1); % minus ?
+    mv  = mn{pt}(2); % minus ?
     
     my_mess{pt} = zeros(sv,sh);
     for Xr_1 = 1:sv
@@ -113,7 +113,7 @@ for pt = [1:4]
     end
 end
 
-my_belief_nose=  squeeze(score_part{5});
+my_belief_nose = squeeze(score_part{5});
 
 for pt = [1:4],
     figure(pt),
