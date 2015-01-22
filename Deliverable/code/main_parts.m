@@ -86,8 +86,8 @@ for feature_ind = 1
                 features_perm = features_train(:, perm);
                 labels_perm = labels_train(:, perm); % dispatch the labels
                 Ncosts  = 10;
-                cost_range = logsample(1e-5,1,Ncosts);
-                [best_cost_lin, cv_errors] = cross_val_linear_svm(10, cost_range, features_perm', labels_perm');
+                cost_range = logsample(1e-3,5,Ncosts);
+                [best_cost_lin, cv_errors, err] = cross_val_linear_svm(10, cost_range, features_perm, labels_perm);
                 w_lin_svm = linear_svm(features_train', labels_train', best_cost_lin);
 
             case 'svm-rbf'
