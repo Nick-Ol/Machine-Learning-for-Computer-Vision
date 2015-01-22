@@ -27,7 +27,7 @@ for part = 1:5
     weights_unary(part,:) = t.svm_linear{part}.weight;
 end
 
-im_id         = 3;  % 3, 231, 507
+im_id         = 1;  % 3, 231, 507
 [input_image] = load_im(im_id,1,1);
 [feats,~,idxs]= get_features(input_image,'SIFT');
 responses     = weights_unary*feats;
@@ -141,15 +141,14 @@ for pt = [1:4]
     def(3) = 1/(2*scv^2);
     def(4) = -2*mv/(2*scv^2);
     
-%     msg_prod = ones(sv,sh);
-%     for i = 1:4
-%         if i~=pt
-%             msg_prod = msg_prod.*mess{i};
-%         end
-%     end
+    msg_sum = zeros(sv,sh);
+    for i = 1:4
+        if i~=pt
+            msg_sum = msg_sum + mess{i};
+        end
+    end
     
-    %[mess_to_leaves{pt},ix_leaves{pt},iy_leaves{pt}] = dt(squeeze(score_part{5}.*msg_prod),def(1),def(2),def(3),def(4));
-    [mess_to_leaves{pt},ix_leaves{pt},iy_leaves{pt}] = dt(squeeze(score_part{5}),def(1),def(2),def(3),def(4));
+    [mess_to_leaves{pt},ix_leaves{pt},iy_leaves{pt}] = dt(squeeze(score_part{5}+msg_sum),def(1),def(2),def(3),def(4));
     offset =  mh^2/(2*sch^2) + mv^2/(2*scv^2);
     mess_to_leaves{pt} = mess_to_leaves{pt} - offset;
 end
@@ -157,7 +156,7 @@ end
 figure,
 for pt = [1:4],
     subplot(2,2,pt);
-    imshow(mess_to_leaves{pt},[max(mess_to_leaves{pt}(:))-2,max(mess_to_leaves{pt}(:))]); title(['\mu_{nose->',parts{pt},'}(X)'],'fontsize',20);
+    imshow(mess_to_leaves{pt},[max(mess_to_leaves{pt}(:))-5,max(mess_to_leaves{pt}(:))]); title(['\mu_{nose->',parts{pt},'}(X)'],'fontsize',20);
 end
 
 %% show ground-truth bounding box. 
