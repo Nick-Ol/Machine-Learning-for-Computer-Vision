@@ -27,7 +27,7 @@ for part = 1:5
     weights_unary(part,:) = t.svm_linear{part}.weight;
 end
 
-im_id         = 1;
+im_id         = 3;  % 3, 231, 507
 [input_image] = load_im(im_id,1,1);
 [feats,~,idxs]= get_features(input_image,'SIFT');
 responses     = weights_unary*feats;
@@ -67,16 +67,14 @@ end
 belief_nose = squeeze(score_part{5});
 
 parts = {'left eye','right eye','left mouth','right mouth','nose'};
+figure,
 for pt = [1:4],
-    figure(pt),
-    subplot(1,2,1);
-    imshow(squeeze(score_part{pt}),[-2,2]); title(['\Phi_{',parts{pt},'}(X)'],'fontsize',20);
-    subplot(1,2,2);
+    subplot(2,2,pt);
     imshow(mess{pt},[-2,2]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
     belief_nose = belief_nose + mess{pt};
 end
 
-figure(5),
+figure,
 subplot(1,2,1);
 imshow(input_image);
 subplot(1,2,2);
@@ -99,8 +97,8 @@ for pt = [1:4]
     pt % see at which part we are in the computation
     sch = sg{pt}(1);
     scv = sg{pt}(2);
-    mh  = mn{pt}(1); % minus ?
-    mv  = mn{pt}(2); % minus ?
+    mh  = mn{pt}(1);
+    mv  = mn{pt}(2);
     
     my_mess{pt} = zeros(sv,sh);
     for Xr_1 = 1:sv
@@ -115,17 +113,18 @@ end
 
 my_belief_nose = squeeze(score_part{5});
 
+figure,
 for pt = [1:4],
-    figure(pt),
+    subplot(2,2,pt);
     imshow(my_mess{pt},[-8,-4]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
     my_belief_nose = my_belief_nose + my_mess{pt};
 end
 
-figure(5),
+figure,
 subplot(1,2,1);
 imshow(input_image);
 subplot(1,2,2);
-imagesc(max(my_belief_nose,-60));
+imagesc(max(my_belief_nose,max(my_belief_nose(:))-6));
 axis image;
 
 %% Root-to-leaves message passing
@@ -134,29 +133,58 @@ mess_to_leaves = cell(1,4);
 for pt = [1:4]
     sch = sg{pt}(1);
     scv = sg{pt}(2);
-    mh  = -mn{pt}(1);
-    mv  = -mn{pt}(2);
+    mh  = mn{pt}(1);
+    mv  = mn{pt}(2);
     
     def(1) = 1/(2*sch^2);
     def(2) = -2*mh/(2*sch^2);
     def(3) = 1/(2*scv^2);
     def(4) = -2*mv/(2*scv^2);
     
+%     msg_prod = ones(sv,sh);
+%     for i = 1:4
+%         if i~=pt
+%             msg_prod = msg_prod.*mess{i};
+%         end
+%     end
+    
+    %[mess_to_leaves{pt},ix_leaves{pt},iy_leaves{pt}] = dt(squeeze(score_part{5}.*msg_prod),def(1),def(2),def(3),def(4));
     [mess_to_leaves{pt},ix_leaves{pt},iy_leaves{pt}] = dt(squeeze(score_part{5}),def(1),def(2),def(3),def(4));
     offset =  mh^2/(2*sch^2) + mv^2/(2*scv^2);
-    mess{pt} = mess{pt} - offset;
+    mess_to_leaves{pt} = mess_to_leaves{pt} - offset;
 end
 
+figure,
 for pt = [1:4],
-    figure(pt),
-    imshow(mess_to_leaves{pt},[20,40]); title(['\mu_{',parts{pt},'-> nose}(X)'],'fontsize',20);
+    subplot(2,2,pt);
+    imshow(mess_to_leaves{pt},[max(mess_to_leaves{pt}(:))-2,max(mess_to_leaves{pt}(:))]); title(['\mu_{nose->',parts{pt},'}(X)'],'fontsize',20);
 end
 
 %% show ground-truth bounding box. 
 %% You will need to adapt this code to make it show your bounding box proposals
+addpath('util/');
 [input_image,points] = load_im(im_id,1,1);
 
-figure(6);
+figure,
+min_x = min(points(1,:));
+max_x = max(points(1,:));
+min_y = min(points(2,:));
+max_y = max(points(2,:));
+score = 1;
+bbox  = [min_x,min_y,max_x,max_y,score];
+showboxes(input_image,bbox);
+
+%% Home-made box
+[input_image,points] = load_im(im_id,1,1);
+
+points = zeros(2,4);
+for pt = 1:4
+    [max_val, max_idx] = max(mess_to_leaves{pt}(:));
+    points(1,pt) = ceil(max_idx/size(mess_to_leaves{pt},1));
+    points(2,pt) = mod(max_idx,size(mess_to_leaves{pt},1));
+end
+
+figure,
 min_x = min(points(1,:));
 max_x = max(points(1,:));
 min_y = min(points(2,:));
