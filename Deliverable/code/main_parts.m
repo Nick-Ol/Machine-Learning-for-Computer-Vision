@@ -1,6 +1,6 @@
 %% addpaths
 this_dir = fileparts(mfilename('fullpath')); addpath(this_dir); addpath(fullfile(this_dir,'steerable'));
-%run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
+run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
 addpath('util/');
 
 %% seeding
@@ -39,7 +39,7 @@ test_negatives  = [2:2:total_negatives];
 feature_names       = {'SIFT','STEER'};
 part_names          = {'Left eye','Right eye','Left mouth','Right mouth','Nose'};
 classifier_names    = {'Linear','Logistic','SVM','SVM-RBF','Adaboost'};
-classifier          = 5; %% change the classifier here
+classifier          = 3; %% change the classifier here
 classifier_name     = classifier_names{classifier};
 count_pos = 0;
 count_neg = 0;
@@ -87,7 +87,7 @@ for feature_ind = 1
                 labels_perm = labels_train(:, perm); % dispatch the labels
                 Ncosts  = 10;
                 cost_range = logsample(1e-5,1,Ncosts);
-                best_cost_lin = cross_val_linear_svm(10, cost_range, features_perm', labels_perm');
+                [best_cost_lin, cv_errors] = cross_val_linear_svm(10, cost_range, features_perm', labels_perm');
                 w_lin_svm = linear_svm(features_train', labels_train', best_cost_lin);
 
             case 'svm-rbf'

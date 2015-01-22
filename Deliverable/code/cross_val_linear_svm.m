@@ -1,4 +1,4 @@
-function [best_cost] = cross_val_linear_svm(K, cost_range, features, labels)
+function [best_cost, cv_error] = cross_val_linear_svm(K, cost_range, features, labels)
 
 addpath('util/');
 cv_error = zeros(1,size(cost_range,2));
@@ -6,7 +6,7 @@ cv_error = zeros(1,size(cost_range,2));
 for i=1:size(cost_range,2)
     cost = cost_range(1,i);
     error = zeros(1,K);
-    fprintf('C = %.2f  [%i out of %i]\n',cost,i,size(cost_range,2));
+    fprintf('C = %.5f  [%i out of %i]\n',cost,i,size(cost_range,2));
     for k=1:K
         [trset_features,trset_labels,vlset_features,vlset_labels] =  ...
                 split_data(features',labels',size(features',1),K,k);
