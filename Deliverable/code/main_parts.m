@@ -4,7 +4,7 @@ this_dir = fileparts(mfilename('fullpath')); addpath(this_dir); addpath(fullfile
 addpath('util/');
 
 %% seeding
-rand('seed',0);
+rand('seed', 0);
 
 %% take a look into the problem
 im_id = 1;
@@ -23,12 +23,12 @@ hold on,scatter(pts(1,:),pts(2,:),'r','filled');
 %--------------------------------
 
 %% images with faces
-total_positives = 1500;      %% set to 1500 by the end
+total_positives = 150;      %% set to 1500 by the end
 train_positives = [1:2:total_positives];
 test_positives  = [2:2:total_positives];
 
 %% background images (seem few, but we draw multiple negatives samples per image)
-total_negatives = 200;       %% set to 200 by the end
+total_negatives = 2;       %% set to 200 by the end
 train_negatives = [1:2:total_negatives];
 test_negatives  = [2:2:total_negatives];
 
@@ -42,48 +42,15 @@ classifier_names    = {'Linear','Logistic','SVM','SVM-RBF','Adaboost'};
 classifier          = 1; %% change the classifier here
 classifier_name     = classifier_names{classifier};
 for feature_ind = 1:2
-    feat                = feature_names{feature_ind};
-    
+    feat = feature_names{feature_ind};
     normalize = 1;  % makes sure faces come at a fixed scale
-    features_train_neg  = [];
-    labels_train_neg    = [];
+    
     % We can compute the features for negative labels only once :
+    % part=-1 means no part, because negative features
     fprintf('Gathering negative training set: \n0+ ');
-    image_lb = 0;
-    for im_idx = [1:length(train_negatives)]
-        image_id  = train_negatives(im_idx);
-
-        [input_image,points]    = load_im(image_id,image_lb,normalize);
-        features_im             = get_features(input_image,feat,points);
-        reject = any((isnan(features_im)|isinf(features_im)),1); 
-        features_im(:,reject) = [];
-
-        features_train_neg                = [features_train_neg,features_im];
-        labels_train_neg                  = [labels_train_neg,  image_lb*ones(1,size(features_im,2))];
-
-        fprintf(2,' %i',mod(im_idx-1,10));
-        if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
-    end
-    
-    normalize = 1;  % makes sure faces come at a fixed scale
-    features_test_neg  = [];
-    labels_test_neg    = [];
+    [features_train_neg, labels_train_neg] = extract_features(train_negatives,feat,0,-1,normalize);
     fprintf('Gathering negative test set: \n0+ ');
-    image_lb = 0;
-    for im_idx = [1:length(test_negatives)]
-        image_id  = test_negatives(im_idx);
-
-        [input_image,points]    = load_im(image_id,image_lb,normalize);
-        features_im             = get_features(input_image,feat,points);
-        reject = any((isnan(features_im)|isinf(features_im)),1); 
-        features_im(:,reject) = [];
-
-        features_test_neg = [features_test_neg,features_im];
-        labels_test_neg = [labels_test_neg,  image_lb*ones(1,size(features_im,2))];
-
-        fprintf(2,' %i',mod(im_idx-1,10));
-        if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
-    end
+    [features_test_neg, labels_test_neg]  = extract_features(test_negatives,feat,0,-1,normalize);
     
     for part = 1:5
         part_name           = part_names{part};
@@ -91,31 +58,9 @@ for feature_ind = 1:2
         %% use this string to save your classifiers 
         %experiment_string = sprintf('Features_%s_Part_%s_Classifier_%s',feat,part_name,classifier_name);
 
-        %-------------------------------------------------------------------
-        %% training
-        %-------------------------------------------------------------------
-
-        %% Step 1: gather dataset 
-        normalize = 1;  % makes sure faces come at a fixed scale
-        features_train_pos  = [];
-        labels_train_pos    = [];
-        % Only for positive labels :
-        fprintf('Gathering positive training set: \n0+ ');
-        image_lb = 1;
-        for im_idx = [1:length(train_positives)]
-            image_id  = train_positives(im_idx);
-
-            [input_image,points]    = load_im(image_id,image_lb,normalize,part);
-            features_im             = get_features(input_image,feat,points);
-            reject = any((isnan(features_im)|isinf(features_im)),1); 
-            features_im(:,reject) = [];
-
-            features_train_pos = [features_train_pos,features_im];
-            labels_train_pos = [labels_train_pos,  image_lb*ones(1,size(features_im,2))];
-
-            fprintf(2,' %i',mod(im_idx-1,10));
-            if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',im_idx); end
-        end
+        %% Step 1: gather train dataset 
+        % positive train
+        [features_train_pos, labels_train_pos] = extract_features(train_positives,feat,1,part,normalize);
 
         % Just need to concatenate negative and positive features
         features_train = [features_train_pos, features_train_neg];
@@ -164,35 +109,16 @@ for feature_ind = 1:2
         title('negative  components of weight vector');
         end
 
-        %-------------------------------------------------------------------
-        %% testing
-        %-------------------------------------------------------------------
-        %% Step 1: gather dataset 
-        normalize = 1;  % makes sure faces come at a fixed scale
-        features_test_pos  = [];
-        labels_test_pos    = [];
+        %% Gather test dataset 
         fprintf('Gathering positive test set: \n0 +');
-        image_lb = 1;
-        for im_idx = [1:length(test_positives)]
-            image_id  = test_positives(im_idx);
+        [features_test_pos, labels_test_pos] = extract_features(test_positives,feat,1,part,normalize)
 
-            [input_image,points]    = load_im(image_id,image_lb,normalize,part);
-            features_im             = get_features(input_image,feat,points);
-
-            reject = any((isnan(features_im)|isinf(features_im)),1); features_im(:,reject) = [];   
-            features_test_pos = [features_test_pos,features_im];
-
-            labels_test_pos = [labels_test_pos,  image_lb*ones(1,size(points,2))];
-
-            fprintf(2,'.%i',mod(im_idx-1,10));
-            if mod(im_idx,10)==0, fprintf(2,'\n%i+ ',floor(im_idx/10)); end
-        end
         
         features_test = [features_test_pos, features_test_neg];
         labels_test = [labels_test_pos, labels_test_neg];
 
 
-        %% Step 2: Precision recall curve for classifier (your code here);
+        %% Step 2: Precision recall curve for classifier
 
         thresholds = [-2:.01:2];
         switch lower(classifier_name)
