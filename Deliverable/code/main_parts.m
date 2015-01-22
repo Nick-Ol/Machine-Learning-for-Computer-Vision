@@ -41,18 +41,21 @@ part_names          = {'Left eye','Right eye','Left mouth','Right mouth','Nose'}
 classifier_names    = {'Linear','Logistic','SVM','SVM-RBF','Adaboost'};
 classifier          = 1; %% change the classifier here
 classifier_name     = classifier_names{classifier};
-for feature_ind = 1:2
+count_pos = 0;
+count_neg = 0;
+
+for feature_ind = 1:1
     feat = feature_names{feature_ind};
     normalize = 1;  % makes sure faces come at a fixed scale
     
     % We can compute the features for negative labels only once :
     % part=-1 means no part, because negative features
-    fprintf('Gathering negative training set: \n0+ ');
+    fprintf('\n Gathering negative training set for feat %s: \n0+ ', feat);
     [features_train_neg, labels_train_neg] = extract_features(train_negatives,feat,0,-1,normalize);
-    fprintf('Gathering negative test set: \n0+ ');
+    fprintf('\n Gathering negative test set for feat %s: \n0+ ', feat);
     [features_test_neg, labels_test_neg]  = extract_features(test_negatives,feat,0,-1,normalize);
     
-    for part = 1:5
+    for part = 1:2
         part_name           = part_names{part};
 
         %% use this string to save your classifiers 
@@ -60,6 +63,7 @@ for feature_ind = 1:2
 
         %% Step 1: gather train dataset 
         % positive train
+        fprintf('\n Gathering postive train set for part %s: \n0+ ', part_name);
         [features_train_pos, labels_train_pos] = extract_features(train_positives,feat,1,part,normalize);
 
         % Just need to concatenate negative and positive features
@@ -110,13 +114,11 @@ for feature_ind = 1:2
         end
 
         %% Gather test dataset 
-        fprintf('Gathering positive test set: \n0 +');
-        [features_test_pos, labels_test_pos] = extract_features(test_positives,feat,1,part,normalize)
+        fprintf('\n Gathering positive test set for part %s: \n0 +', part_name);
+        [features_test_pos, labels_test_pos] = extract_features(test_positives,feat,1,part,normalize);
 
-        
         features_test = [features_test_pos, features_test_neg];
         labels_test = [labels_test_pos, labels_test_neg];
-
 
         %% Step 2: Precision recall curve for classifier
 
@@ -150,6 +152,15 @@ for feature_ind = 1:2
         for image_lb = [0,1] 
             %% try both a positive and a negative image
             [input_image,points]       = load_im(image_id,image_lb,normalize,part);
+            % Make sure the image is plotted once only
+            if count_pos == 0 && image_lb == 1
+                count_pos = 1;
+                figure,imshow(input_image);
+            end
+            if count_neg == 0 && image_lb == 0
+                count_neg = 1;
+                figure,imshow(input_image);
+            end
 
             %% important: make sure you do NOT give the third, 'points', argument
             [dense_features,crds,idxs] = get_features(input_image,feat);
@@ -175,7 +186,7 @@ for feature_ind = 1:2
 
             title_string    = sprintf('%s score for part: %s',classifier_name,part_name);
             figure,imagesc(score,[min(score_classifier),max(score_classifier)]); title(title_string);
-            figure,imshow(input_image);
+            
         end
     end
 end
