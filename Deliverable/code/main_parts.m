@@ -1,6 +1,6 @@
 %% addpaths
 this_dir = fileparts(mfilename('fullpath')); addpath(this_dir); addpath(fullfile(this_dir,'steerable'));
-run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
+%run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
 addpath('util/');
 
 %% seeding
@@ -39,12 +39,12 @@ test_negatives  = [2:2:total_negatives];
 feature_names       = {'SIFT','STEER'};
 part_names          = {'Left eye','Right eye','Left mouth','Right mouth','Nose'};
 classifier_names    = {'Linear','Logistic','SVM','SVM-RBF','Adaboost'};
-classifier          = 3; %% change the classifier here
+classifier          = 2; %% change the classifier here
 classifier_name     = classifier_names{classifier};
 count_pos = 0;
 count_neg = 0;
 
-for feature_ind = 1
+for feature_ind = 1:2
     feat = feature_names{feature_ind};
     normalize = 1;  % makes sure faces come at a fixed scale
     
@@ -142,7 +142,7 @@ for feature_ind = 1
         end
 
 
-        title_string    = sprintf('%s precision-recall for part: %s',classifier_name,part_name);
+        title_string    = sprintf('%s precision-recall for part %s and %s features',classifier_name,part_name,feat);
         figure;
         plot(precision,recall); axis([0,1,0,1]);
         title(title_string); xlabel('Precision'); ylabel('Recall');
@@ -184,7 +184,7 @@ for feature_ind = 1
             score       = -inf*ones(sv,sh);
             score(idxs) = score_classifier;
 
-            title_string    = sprintf('%s score for part: %s',classifier_name,part_name);
+            title_string    = sprintf('%s score for part %s and %s features',classifier_name,part_name, feat);
             figure,imagesc(score,[min(score_classifier),max(score_classifier)]); title(title_string);
             
         end
