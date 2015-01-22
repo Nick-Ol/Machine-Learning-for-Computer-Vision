@@ -96,9 +96,9 @@ for feature_ind = 1
                 labels_perm = labels_train(:, perm); % dispatch the labels
                 Ngammas = 10;
                 Ncosts  = 10;
-                gamma_range = logsample(1e-5,1,Ngammas);
-                cost_range  = logsample(1e-5,1,Ncosts);
-                [best_cost_rbf, best_gamma] = cross_val_rbf_svm(10, cost_range, gamma_range, features_perm', labels_perm');
+                gamma_range = logsample(1e-3,5,Ngammas);
+                cost_range  = logsample(1e-3,5,Ncosts);
+                [best_cost_rbf, best_gamma] = cross_val_rbf_svm(10, cost_range, gamma_range, features_perm, labels_perm);
                 w_rbf_svm = rbf_svm(features_train', labels_train', best_gamma, best_cost_rbf);
         end
 

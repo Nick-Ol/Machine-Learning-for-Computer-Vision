@@ -11,7 +11,7 @@ for i=1:size(gamma_range,2)
         fprintf('gamma = %.2f  [%i out of %i],  C = %.2f  [%i out of %i]\n',gamma,i,size(gamma_range,2),cost,j,size(cost_range,2));
         for k=1:K
             [trset_features,trset_labels,vlset_features,vlset_labels] =  ...
-                    split_data(features',labels',size(features',1),K,k);
+                    split_data(features,labels,size(features,2),K,k);
              if sum(trset_labels) ~= 0
                 [w,model] = rbf_svm(trset_features', trset_labels', gamma, cost);
                 [predict_label, accuracy, dec_values]   ...
