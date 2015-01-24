@@ -1,6 +1,6 @@
 %% addpaths
 this_dir = fileparts(mfilename('fullpath')); addpath(this_dir); addpath(fullfile(this_dir,'steerable'));
-%run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
+run('/Users/Mathurin/Documents/MATLAB/VLFEATROOT/toolbox/vl_setup')
 addpath('util/');
 
 %% seeding
@@ -39,12 +39,12 @@ test_negatives  = [2:2:total_negatives];
 feature_names       = {'SIFT','STEER'};
 part_names          = {'Left eye','Right eye','Left mouth','Right mouth','Nose'};
 classifier_names    = {'Linear','Logistic','SVM','SVM-RBF','Adaboost'};
-classifier          = 2; %% change the classifier here
+classifier          = 4; %% change the classifier here
 classifier_name     = classifier_names{classifier};
 count_pos = 0;
 count_neg = 0;
 
-for feature_ind = 1:2
+for feature_ind = 1
     feat = feature_names{feature_ind};
     normalize = 1;  % makes sure faces come at a fixed scale
     
@@ -96,9 +96,9 @@ for feature_ind = 1:2
                 labels_perm = labels_train(:, perm); % dispatch the labels
                 Ngammas = 10;
                 Ncosts  = 10;
-                gamma_range = logsample(1e-3,5,Ngammas);
-                cost_range  = logsample(1e-3,5,Ncosts);
-                [best_cost_rbf, best_gamma] = cross_val_rbf_svm(10, cost_range, gamma_range, features_perm, labels_perm);
+                gamma_range = logsample(1e-2,1e3,Ngammas);
+                cost_range  = logsample(1e-2,1e3,Ncosts);
+                [best_cost_rbf, best_gamma] = cross_val_rbf_svm(4, cost_range, gamma_range, features_perm', labels_perm');
                 w_rbf_svm = rbf_svm(features_train', labels_train', best_gamma, best_cost_rbf);
         end
 
@@ -142,7 +142,7 @@ for feature_ind = 1:2
         end
 
 
-        title_string    = sprintf('%s precision-recall for part %s and %s features',classifier_name,part_name,feat);
+        title_string    = sprintf('%s precision-recall for part: %s',classifier_name,part_name);
         figure;
         plot(precision,recall); axis([0,1,0,1]);
         title(title_string); xlabel('Precision'); ylabel('Recall');
@@ -184,7 +184,7 @@ for feature_ind = 1:2
             score       = -inf*ones(sv,sh);
             score(idxs) = score_classifier;
 
-            title_string    = sprintf('%s score for part %s and %s features',classifier_name,part_name, feat);
+            title_string    = sprintf('%s score for part: %s',classifier_name,part_name);
             figure,imagesc(score,[min(score_classifier),max(score_classifier)]); title(title_string);
             
         end
