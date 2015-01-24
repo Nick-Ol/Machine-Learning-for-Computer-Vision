@@ -1,4 +1,4 @@
-function [best_cost, best_gamma] = cross_val_rbf_svm(K, cost_range, gamma_range, features, labels)
+function [best_cost, best_gamma, cv_error] = cross_val_rbf_svm(K, cost_range, gamma_range, features, labels)
 
 addpath('util/');
 cv_error=zeros(size(gamma_range,2),size(cost_range,2));
@@ -20,7 +20,7 @@ for i=1:size(gamma_range,2)
                 error(1,k) = length(find(predict_label~=vlset_labels'));
              end
         end
-        cv_error(i) = mean(error);
+        cv_error(i, j) = mean(error);
     end
 end
 
