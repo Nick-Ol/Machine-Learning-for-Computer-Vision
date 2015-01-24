@@ -7,6 +7,7 @@ for i=1:size(cost_range,2)
     cost = cost_range(1,i);
     fprintf('C = %.5f  [%i out of %i]\n',cost,i,size(cost_range,2));
     for k=1:K
+        fprintf('%i', k)
         [trset_features,trset_labels,vlset_features,vlset_labels] =  ...
                 split_data(features,labels,size(features,2),K,k);
          if sum(trset_labels) ~= 0

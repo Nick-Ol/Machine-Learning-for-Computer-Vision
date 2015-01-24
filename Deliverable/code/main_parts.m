@@ -55,7 +55,7 @@ for feature_ind = 1:2
     fprintf('\n Gathering negative test set for feat %s: \n0+ ', feat);
     [features_test_neg, labels_test_neg]  = extract_features(test_negatives,feat,0,-1,normalize);
     
-    for part = 3
+    for part = 1:5
         part_name = part_names{part};
 
         %% use this string to save your classifiers 
@@ -85,9 +85,9 @@ for feature_ind = 1:2
                 perm = randperm(size(features_train,2));
                 features_perm = features_train(:, perm);
                 labels_perm = labels_train(:, perm); % dispatch the labels
-                Ncosts  = 10;
-                cost_range = logsample(1e-3,5,Ncosts);
-                [best_cost_lin, cv_errors, err] = cross_val_linear_svm(10, cost_range, features_perm, labels_perm);
+                Ncosts  = 40;
+                cost_range = logsample(1e-2, 1e3, Ncosts);
+                [best_cost_lin, cv_errors, err] = cross_val_linear_svm(7, cost_range, features_perm, labels_perm);
                 w_lin_svm = linear_svm(features_train', labels_train', best_cost_lin);
 
             case 'svm-rbf'
