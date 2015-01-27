@@ -15,6 +15,6 @@ Deliverable/data/*
 *.m~
 *.xls#
 
-Deliverable/Rapport_Mathurin/Report_Deliverable.tex
+Deliverable/Rapport_Mathurin/*
 
 Deliverable/code/costs_.png
