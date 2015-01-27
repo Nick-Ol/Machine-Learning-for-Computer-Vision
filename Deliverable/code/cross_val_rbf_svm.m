@@ -1,4 +1,4 @@
-function [best_cost, best_gamma, cv_error] = cross_val_rbf_svm(K, cost_range, gamma_range, features, labels)
+function [cv_error] = cross_val_rbf_svm(K, cost_range, gamma_range, features, labels)
 
 addpath('util/');
 cv_error=zeros(size(gamma_range,2),size(cost_range,2));
@@ -24,10 +24,10 @@ for i=1:size(gamma_range,2)
     end
 end
 
-[min_val, min_idx] = min(cv_error(:));
+%[min_val, min_idx] = min(cv_error(:));
 %cost on columns :
-best_cost_index = ceil(min_idx/size(cv_error,1));
-best_cost = cost_range(best_cost_index);
+%best_cost_index = ceil(min_idx/size(cv_error,1));
+%best_cost = cost_range(best_cost_index);
 %gamma on rows :
-best_gamma_index = mod(min_idx,size(cv_error,1));
-best_gamma = gamma_range(best_gamma_index);
+%best_gamma_index = mod(min_idx,size(cv_error,1));
+%best_gamma = gamma_range(best_gamma_index);
